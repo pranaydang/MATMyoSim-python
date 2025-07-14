@@ -117,9 +117,12 @@ class Muscle:
             
             else:
                 if (time_step > 0):
-                    self.hs[0].implement_time_step(time_step, delta_hsl, Ca_value, m_props)
+                    self.hs[0].implement_time_step(time_step, delta_hsl, Ca_value, m_props) #check here
                 
-                self.hs[0].hs_length = self.hs[0].hs_length + delta_hsl
+                # self.hs[0].hs_length = self.hs[0].hs_length + delta_hsl
+                self.hs[0].hs_length += delta_hsl
+
+                # print(self.hs[0].hs_length)
 
                 # print("hello")
             

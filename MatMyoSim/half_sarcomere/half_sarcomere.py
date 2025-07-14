@@ -153,15 +153,15 @@ class HalfSarcomere:
     def update_forces(self, time_step, delta_hsl):
 
         [self.m_force, self.c_force] = self.return_distrib_force(time_step, delta_hsl)
-
+        # print(self.c_force)
         self.int_passive_force = self.return_intracellular_passive_force(self.hs_length)
         self.ext_passive_force = self.return_extracellular_passive_force(self.hs_length)
-
+        # print(self.ext_passive_force)
         self.viscous_force = (1 - self.parameters["prop_fibrosis"]) * self.parameters["prop_myofilaments"] * self.parameters["viscosity"] * delta_hsl / time_step
-
+        # print(self.viscous_force)
         self.int_total_force = self.m_force + self.c_force + self.int_passive_force
-
-        self.hs_force = self.m_force + self.c_force + self.int_passive_force + self.viscous_force + self.ext_passive_force
+        # print(self.m_force)
+        self.hs_force = self.m_force + self.c_force + self.int_passive_force + self.viscous_force + self.ext_passive_force #hello hello hello this might be it
 
         return None
     
@@ -174,11 +174,11 @@ class HalfSarcomere:
         delta_c_force = 0
 
         delta_int_pas_force = self.return_intracellular_passive_force(new_length)- self.int_passive_force
-
+        # print(delta_int_pas_force)
         delta_ext_pas_force = self.return_extracellular_passive_force(new_length)- self.ext_passive_force
-
+        # print(delta_ext_pas_force)
         delta_viscous_force = (1 - self.parameters["prop_fibrosis"]) * self.parameters["prop_myofilaments"] * self.parameters["viscosity"] * delta_hs_length / time_step
-
+        # print(delta_viscous_force)
         self.check_force = self.hs_force + delta_m_force + delta_c_force + delta_int_pas_force + delta_ext_pas_force + delta_viscous_force
 
         return None
@@ -199,7 +199,7 @@ class HalfSarcomere:
         if rate_func == "newSpindleBag1":
 
             r1 = np.zeros(len(self.myofilaments["x"]))
-            r1 = (self.parameters["k_1"]*np.exp(-self.parameters["k_cb"]*10*(self.myofilaments["x"]**2)))/ (1e18 * self.parameters["k_boltzmann"] * self.parameters["temperature"])
+            r1 = (self.parameters["k_1"]*np.exp(-self.parameters["k_cb"]*10*(self.myofilaments["x"]**2)/ (1e18 * self.parameters["k_boltzmann"] * self.parameters["temperature"])))
             r1[r1>self.parameters["max_rate"]] = self.parameters["max_rate"]
 
             r2 = np.zeros(len(self.myofilaments["x"]))
@@ -211,7 +211,7 @@ class HalfSarcomere:
         elif rate_func == "newSpindleChain1":
 
             r1 = np.zeros(len(self.myofilaments["x"]))
-            r1 = (self.parameters["k_1"]*np.exp(-self.parameters["k_cb"]*5*(2*(self.myofilaments["x"])**2)))/ (1e18 * self.parameters["k_boltzmann"] * self.parameters["temperature"])
+            r1 = (self.parameters["k_1"]*np.exp(-self.parameters["k_cb"]*5*(2*(self.myofilaments["x"])**2)/ (1e18 * self.parameters["k_boltzmann"] * self.parameters["temperature"])))
             r1[r1>self.parameters["max_rate"]] = self.parameters["max_rate"]
 
             r2 = np.zeros(len(self.myofilaments["x"]))
@@ -295,6 +295,8 @@ class HalfSarcomere:
                 * 1e-9
                 * np.sum((self.myofilaments["x"] + self.parameters["x_ps"]) * bin_pops)
                 )
+            
+            # print(np.sum((self.myofilaments["x"] + self.parameters["x_ps"]) * bin_pops))
             
             return [m_force, c_force]
     

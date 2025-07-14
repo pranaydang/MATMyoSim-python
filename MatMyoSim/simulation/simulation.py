@@ -25,7 +25,13 @@ def implement_time_step(myosim_muscle:Muscle, dt, dhsl, pCa, sim_mode, kinetic_s
                 "Ca": np.full((n_hs), np.nan),
                 "r1": np.full((n_hs, len(myosim_muscle.hs[0].rate_structure["r1"])), np.nan),
                 "M1": np.full((n_hs), np.nan),
-                "M2": np.full((n_hs), np.nan)}
+                "M2": np.full((n_hs), np.nan)
+                }
+
+    sim_output["muscle_force"] = myosim_muscle.muscle_force
+    sim_output["muscle_length"] = myosim_muscle.muscle_length
+    sim_output["command_length"] = myosim_muscle.command_length
+    sim_output["series_extension"]= myosim_muscle.series_extension
 
     for i in range(myosim_muscle.no_of_half_sarcomeres):
 
@@ -50,15 +56,21 @@ def implement_time_step(myosim_muscle:Muscle, dt, dhsl, pCa, sim_mode, kinetic_s
             M2_indices = slice(1, 1 + myosim_muscle.hs[i].myofilaments["no_of_x_bins"])
             # sim_output["cb_pops"][i] = myosim_muscle.hs[i].myofilaments["y"][M2_indices]
     
+    # print(sim_output["hs_length"])
+    
     return myosim_muscle, sim_output
 
 def find_firing_rate(time_step,sim_output_bag, sim_output_chain, force_dynamic_list, yank_list, kFc,kFb,kYb):
 
     Fs = sim_output_chain['hs_force']
     Fd = sim_output_bag['hs_force']
+    
+    # print(Fs)
+    # print(Fd)
 
     if len(force_dynamic_list) == 0:
-        Yd = Fd/time_step
+        # Yd = Fd/time_step
+        Yd = 0
     else:
         Yd = (Fd - force_dynamic_list[-1])/time_step
     
@@ -77,21 +89,38 @@ def find_firing_rate(time_step,sim_output_bag, sim_output_chain, force_dynamic_l
 
     # print(Yd)
 
-    # print(rs)
+    # print(type(rs))
     # print(rd)
 
     if rs<0:
-        rs = 0
+        rs = np.array([0])
+    
+    if rd<0:
+        rd = np.array([0])
     
     rs = 2*rs/(10**5)
     rd = 2*rd/(10**5)
 
     r = rs+rd
-
+    # print(r)
     if r<0:
-        r = 0
+        # print("here")
+        r = np.array([0])
     
     return r, rs, rd, force_dynamic_list, yank_list
+
+def find_firing_rate_matlab(time_step,sim_output_bag, sim_output_chain, force_dynamic_list, force_static_list):
+
+    Fs = sim_output_chain['hs_force']
+    Fd = sim_output_bag['hs_force']
+
+    
+    force_static_list = np.append(force_static_list,Fs)
+    force_dynamic_list = np.append(force_dynamic_list,Fd)
+    # force_dynamic_list.append(Fd)
+    
+    return force_dynamic_list, force_static_list
+
 
 
 
